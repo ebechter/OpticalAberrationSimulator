@@ -17,5 +17,6 @@ star.wavelength = star.wavelength;
 % figure
 % plot(star.wavelength,star.spectrum)
 
-[rectangle, wavelength]=ConvolveOrder(star.wavelength,star.spectrum,wave_coeff(1,:,1),scale);
+[APSF,FPgridx,FPgridy]=ConvolveOrder(star.wavelength,star.spectrum,wave_coeff(1,:,1),scale);
             
+save PSF APSF FPgridx FPgridy
