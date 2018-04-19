@@ -7,7 +7,7 @@ clear all
 close all
 
 Wavelength = 1;% microns
-wfe = [0,0,0,0,0,0,0,0];
+wfe = [0,0,0,0,0,0,5,5,0];
 
 %Zernike phase map
 W = 0; %
@@ -45,12 +45,12 @@ Uin1 = circ(Pupil_cenx,Pupil_ceny,D);%outer circle
 % Uin2 = circ(Pupil_cenx,Pupil_ceny,D*alpha);%inner circle
 % pupil = Uin1-Uin2;%total pupil plance image
 
-[gauss]=circ_gauss(Pupil_cenx,Pupil_ceny,[D/8,D/8],[0,0]);
+[gauss]=circ_gauss(Pupil_cenx,Pupil_ceny,[D,D]/8,[0,0]);
 gauss = gauss./(max(max(gauss)));
 pupil = Uin1.*gauss;
 
 % W =pupil.*W;
-Pupil = pupil.*exp(1i*W(2:end,2:end)); %Complex Pupil plane with phase term
+Pupil = pupil.*exp(1i*W); %Complex Pupil plane with phase term
 
 %Propogate the pupil plane to focal plane (electric fields) at
 %all wavelengths

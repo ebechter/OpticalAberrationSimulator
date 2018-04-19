@@ -1,4 +1,4 @@
-function [APSF,FPgridx,FPgridy] = ConvolveOrder(wavelength,spectrum,wave_coeff,scale)
+function [APSF,trim,wavelength] = ConvolveOrder(wavelength,spectrum,wave_coeff,wfe,scale)
 
 % function [trim, wavelength] = ConvolveOrder(wavelength,spectrum,wave_coeff,scale)
             
@@ -16,46 +16,40 @@ function [APSF,FPgridx,FPgridy] = ConvolveOrder(wavelength,spectrum,wave_coeff,s
             horSamp = linspace(6,3,length(wavelength));
             
             vertSamp = median(horSamp);
-%             pix_samp = pix_samp;
+
             % Custom convolution
             
-            % Do the first loop iteration outside the loop. Need to
-            % calculate dim first
+            % Do the first loop iteration outside the loop. 
             ii = 1;
-            wfe = [0,0,0,0,0,0,0,0];
 %             [PSF,center] = Simulation.MakePSF(scale,pix_samp(ii),vert_samp);
-            [APSF,FPgridx,FPgridy] = makeAbbPsf(wfe,wavelength(1));%,[horzSamp,vertSamp]);
-            
-%             figure
-%             imagesc(PSF)
-            figure
-            imagesc(APSF)
-            
-   return
-            
-%             how to resample?
-            figure
-            RAPSF = imresize(APSF,size(PSF));
-            imagesc(RAPSF)
+
+%           determine wfe to use. scale it off of wavelength... 
+            wfeList{ii} = wfe*(wavelength(ii)/0.97);
             
             
-            dim = size(PSF,1);
+            [APSF,FPgridx,FPgridy] = makeAbbPsf(wfeList{ii},wavelength(ii),[3 3],scale);
+            center = [round(size(FPgridx,2)/2),round(size(FPgridy,1)/2)];
+           
+            dim = size(APSF,1);
             rectangle = zeros(dim,length(wavelength)+dim-1);
-            rectangle(:,ii:dim-1+ii)=rectangle(:,ii:dim-1+ii)+PSF.*spectrum(ii);
+            rectangle(:,ii:dim-1+ii)=rectangle(:,ii:dim-1+ii)+APSF.*spectrum(ii);
             
             for ii = 2:length(wavelength)
-                
-                [PSF,~] = MakePSF(scale,horSamp(ii),vert_samp);
-                
+                wfeList{ii} = wfe*(wavelength(ii)/0.97);
+
+%                 [PSF,~] = MakePSF(scale,horSamp(ii),vert_samp);
+
+                [APSF,FPgridx,FPgridy] = makeAbbPsf(wfeList{ii},wavelength(ii),[horSamp(ii) vertSamp],scale);
+                            
                 %                 Conv1 = conv2(spectrum(ii),PSF,'full');
                 
-                rectangle(:,ii:dim-1+ii)=rectangle(:,ii:dim-1+ii)+PSF.*spectrum(ii);
+                rectangle(:,ii:dim-1+ii)=rectangle(:,ii:dim-1+ii)+APSF.*spectrum(ii);
                 %                 rectangle(:,ii:dim-1+ii)=rectangle(:,ii:dim-1+ii)+Conv1;
                 
                 
             end
             
             
-            trim = rectangle(:,center(1):end-(size(PSF,2)-center(1)));
+            trim = rectangle(:,center(1):end-(size(APSF,2)-center(1)));
             
         end
